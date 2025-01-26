@@ -114,7 +114,7 @@ def add_book():
         return jsonify({"message": "Name and book_type are required"}), 400
     
     try:
-        book_type = BookTypeEnum.__members__.get(book_type)
+        book_type = BookTypeEnum.__members__.get(book_type.upper())
     except ValueError:
         return jsonify({"message": "Invalid book_type"}), 400
     

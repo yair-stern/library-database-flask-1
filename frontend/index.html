@@ -1,15 +1,221 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
+    <title>Library - Home</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #4CAF50;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .response {
+            margin-top: 20px;
+            color: #333;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </head>
+
 <body>
+    <h1>Library</h1>
+    <h2>Home</h2>
+
+    <button onclick="getBooks()">Display Books</button>
+    <button id="showAddBookForm">Add Book</button>
+    <button onclick="addCustomer()">Add Customer</button>
+    <button onclick="loanBook(0, 0)">Loan Book</button>
+    <button onclick="returnBook()">Return Book</button>
+
+    <div id="addBookFormContainer" style="display:none;">
+        <form id="addBookForm">
+            <label for="name">Book Name:</label>
+            <input type="text" name="name" required><br>
+
+            <label for="book_type">Book Type:</label>
+            <select name="book_type" required>
+                <option value="" disabled selected>Select a book type</option>
+                <option value="Guide">Guide</option>
+                <option value="Fiction">Fiction</option>
+                <option value="Reference">Reference</option>
+            </select><br>
+
+            <label for="year_published">Year Published:</label>
+            <input type="number" name="year_published"><br>
+
+            <label for="author">Author:</label>
+            <input type="text" name="author"><br>
+
+            <label for="copies">Copies:</label>
+            <input type="number" name="copies" value="1"><br>
+
+            <button type="button" onclick="addBook(event)">Add Book</button>
+        </form>
+        <button id="cancelFormAddBook">close form</button>
+    </div>
+
+    <div class="response" id="response1"></div>
+
     <script>
-        const SERVER = "http://127.0.0.1:5000"
-        axios.get(SERVER).then(res => console.log(res.data))
+        const SERVER = "http://127.0.0.1:5000";
+
+        function getBooks() {
+            axios.get(`${SERVER}/books`)
+                .then(response => {
+                    const books = response.data;
+                    // open table and table headers
+                    // Book number is book ID. Title is book name
+                    let tableHTML = `
+                        <table>
+                            <tr>
+                                <th>Book number</th>
+                                <th>Title</th>
+                                <th>Year published</th>
+                                <th>Author</th>
+                                <th>Book type</th>
+                                <th>Total copies</th>
+                                <th>Available copies</th>
+                                <th>Actions</th>
+                            </tr>
+                    `;
+                    // add book data to table rows
+                    books.forEach(book => {
+                        tableHTML += `
+                            <tr>
+                                <td>${book.id}</td>
+                                <td>${book.name}</td>
+                                <td>${book.year_published}</td>
+                                <td>${book.author}</td>
+                                <td>${book.book_type}</td>
+                                <td>${book.copies}</td>
+                                <td>${book.copies_in_library}</td>
+                                <td>
+                                    <button onclick="deleteOneCopy(${book.id})">Delete 1 Copy</button>
+                                    <button onclick="deleteAllCopies(${book.id})">Delete All Copies</button>
+                                    <button onclick="loanBook(${book.id}, 0)">Borrow Book</button>
+                                </td>
+                            </tr>
+                    `;
+                    });
+                    tableHTML += `</table>`;
+                    response1.innerHTML = tableHTML;
+                })
+                .catch(error => {
+                    response1.innerHTML = `<p>Error: ${error.response.data.message || error.message}</p>`;
+                });
+        }
+
+        // display add book form
+        document.getElementById("showAddBookForm").addEventListener("click", () => {
+            var divForm = document.getElementById("addBookFormContainer");
+            if (divForm.style.display === "none") {
+                divForm.style.display = "block";  // Show the form
+            } else {
+                divForm.style.display = "none";  // Hide the form
+            }
+        });
+
+        // hide add book form
+        document.getElementById("cancelFormAddBook").addEventListener("click", () => {
+            document.getElementById("addBookFormContainer").style.display = "none";
+        });
+
+        function addBook(event) {
+            event.preventDefault();
+
+            const form = event.target.closest("form");
+            const bookData = {
+                name: form.querySelector("[name='name']").value,
+                book_type: form.querySelector("[name='book_type']").value,
+                year_published: form.querySelector("[name='year_published']").value || 5770,
+                author: form.querySelector("[name='author']").value || "Unknown",
+                copies: form.querySelector("[name='copies']").value || 1
+            };
+            axios.post(`${SERVER}/add_book`, bookData)
+                .then(response => {
+                    document.getElementById("response1").innerText = response.data.message;
+                })
+                .catch(error => {
+                    document.getElementById("response1").innerText = `Error: ${error.response.data.message || error.message}`;
+                });
+        }
+
+        function deleteOneCopy(bookId) {
+
+        }
+
+        function deleteAllCopies(bookId) {
+
+        }
+
+        function addCustomer() {
+            const customerData = {
+                name: "John Doe",
+                israel_id: "123456789",
+                city: "Tel Aviv",
+                age: 30
+            };
+            axios.post(`${SERVER}/add_customers`, customerData)
+                .then(response => {
+                    document.getElementById("response").innerText = response.data.message;
+                })
+                .catch(error => {
+                    document.getElementById("response").innerText = `Error: ${error.response.data.message || error.message}`;
+                });
+        }
+
+        function loanBook(bookId, customerId) {
+            const loanData = {
+                book_id: 1,  // Replace with a valid book ID
+                customer_id: 1  // Replace with a valid customer ID
+            };
+            axios.post(`${SERVER}/loan_book`, loanData)
+                .then(response => {
+                    document.getElementById("response").innerText = response.data.message;
+                })
+                .catch(error => {
+                    document.getElementById("response").innerText = `Error: ${error.response.data.message || error.message}`;
+                });
+        }
+
+        function returnBook() {
+            const returnData = {
+                book_id: 1,  // Replace with a valid book ID
+                customer_id: 1  // Replace with a valid customer ID
+            };
+            axios.post(`${SERVER}/return_book`, returnData)
+                .then(response => {
+                    document.getElementById("response").innerText = response.data.message;
+                })
+                .catch(error => {
+                    document.getElementById("response").innerText = `Error: ${error.response.data.message || error.message}`;
+                });
+        }
     </script>
 </body>
+
 </html>
