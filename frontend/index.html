@@ -47,9 +47,7 @@
 
     <button onclick="getBooks()">Display Books</button>
     <button id="showAddBookForm">Add Book</button>
-    <button onclick="addCustomer()">Add Customer</button>
-    <button onclick="loanBook(0, 0)">Loan Book</button>
-    <button onclick="returnBook()">Return Book</button>
+    <button id="showAddCustomerForm">Add Customer</button>
 
     <div id="addBookFormContainer" style="display:none;">
         <form id="addBookForm">
@@ -76,6 +74,28 @@
             <button type="button" onclick="addBook(event)">Add Book</button>
         </form>
         <button id="cancelFormAddBook">close form</button>
+    </div>
+
+    <div id="addCustomerFormContainer" style="display:none;">
+        <form id="addCustomerForm">
+            <label for="name">Customer Name:</label>
+            <input type="text" name="name" required><br>
+
+            <label for="city">City:</label>
+            <input type="text" name="city"><br>
+
+            <label for="year_birth">Year Birth(recomended):</label>
+            <input type="text" name="year_birth"><br>
+
+            <label for="age">Age:</label>
+            <input type="text" name="age"><br>
+
+            <label for="israel_id">Israel ID:</label>
+            <input type="text" name="israel_id" required><br>
+
+            <button type="button" onclick="addCustomer(event)">Add Customer(have an error)</button>
+        </form>
+        <button id="cancelFormAddCustomer">close form</button>
     </div>
 
     <div class="response" id="response1"></div>
@@ -144,6 +164,21 @@
             document.getElementById("addBookFormContainer").style.display = "none";
         });
 
+        // display add customer form
+        document.getElementById("showAddCustomerForm").addEventListener("click", () => {
+            var divForm = document.getElementById("addCustomerFormContainer");
+            if (divForm.style.display === "none") {
+                divForm.style.display = "block";  // Show the form
+            } else {
+                divForm.style.display = "none";  // Hide the form
+            }
+        });
+
+        // hide add customer form
+        document.getElementById("cancelFormAddCustomer").addEventListener("click", () => {
+            document.getElementById("addCustomerFormContainer").style.display = "none";
+        });
+
         function addBook(event) {
             event.preventDefault();
 
@@ -157,6 +192,36 @@
             };
             axios.post(`${SERVER}/add_book`, bookData)
                 .then(response => {
+                    document.getElementById("response1").innerText = response.data.message;
+                })
+                .catch(error => {
+                    document.getElementById("response1").innerText = `Error: ${error.response.data.message || error.message}`;
+                });
+        }
+
+        function addCustomer(event) {
+            event.preventDefault();
+
+            const form = event.target.closest("form");
+            const customerData = {
+                name: form.querySelector("[name='name']").value,
+                city: form.querySelector("[name='city']").value,
+                age: form.querySelector("[name='age']").value,
+                year_birth: form.querySelector("[name='year_birth']").value,
+                israel_id: form.querySelector("[name='israel_id']").value
+            };
+            if (!customerData.age) {
+                delete customerData.age;
+            }
+            if (!customerData.city) {
+                delete customerData.city;
+            }
+            if (!customerData.year_birth) {
+                delete customerData.year_birth;
+            }
+            axios.post(`${SERVER}/add_customers`, customerData)
+                .then(response => {
+                    console.log(response);
                     document.getElementById("response1").innerText = response.data.message;
                 })
                 .catch(error => {
@@ -184,35 +249,8 @@
                     document.getElementById("response").innerText = response.data.message;
                 })
                 .catch(error => {
-                    document.getElementById("response").innerText = `Error: ${error.response.data.message || error.message}`;
-                });
-        }
-
-        function loanBook(bookId, customerId) {
-            const loanData = {
-                book_id: 1,  // Replace with a valid book ID
-                customer_id: 1  // Replace with a valid customer ID
-            };
-            axios.post(`${SERVER}/loan_book`, loanData)
-                .then(response => {
-                    document.getElementById("response").innerText = response.data.message;
-                })
-                .catch(error => {
-                    document.getElementById("response").innerText = `Error: ${error.response.data.message || error.message}`;
-                });
-        }
-
-        function returnBook() {
-            const returnData = {
-                book_id: 1,  // Replace with a valid book ID
-                customer_id: 1  // Replace with a valid customer ID
-            };
-            axios.post(`${SERVER}/return_book`, returnData)
-                .then(response => {
-                    document.getElementById("response").innerText = response.data.message;
-                })
-                .catch(error => {
-                    document.getElementById("response").innerText = `Error: ${error.response.data.message || error.message}`;
+                    console.log(error);
+                    document.getElementById("response").innerText = `Error: ${error.response.data.message || error.message || response.data.message}`;
                 });
         }
     </script>

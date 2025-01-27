@@ -1,7 +1,29 @@
 # library
+## Project Overview
+This project is a library management system built with Flask and SQLAlchemy. It enables users to manage books, customers, and loan records. The application supports basic CRUD operations, such as adding, updating, deleting, and displaying data for books, customers, and loans.
+
+## Features
+
+1. Books Management
+* Add books with properties such as name, publication year, author, type, availability, and copy count.
+* Support for three book types (guide, fiction, reference) with predefined loan durations.
+2. Customers Management
+
+* Add customers with personal details like name, age, city, year of birth, and unique Israeli ID.
+
+3. Loan Management
+* Issue loans to customers, recording loan and return dates.
+* Track active loans and return books.
+
+4. API Endpoints
+
+* POST /add_book – Add a new book to the database.
+* POST /add_customers – Add a new customer to the database.
+* POST /loan_book – Loan a book to a customer.
+* POST /return_book – Return a loaned book.
+* Additional endpoints for deleting and displaying data.
+
 ## decomentation
-needs:
-2. requerments.txt for git
 
 It is possible to store two books with the same name. Ensure that if they are the same book, they are saved as copies rather than as separate records.
 It is possible to add two customers with the same name.
@@ -26,3 +48,4 @@ For this project, I chose to implement the Data Access Layer (DAL) using standal
 If the project evolves or requires more complexity in the future, transitioning to a fully object-oriented design with methods inside dedicated classes can be considered.
 
 ## working:
+Client-side, handling error when adding a customer.
