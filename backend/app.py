@@ -153,8 +153,7 @@ def add_customer():
     name = data.get('name')
     israel_id = data.get("israel_id")
     if not israel_id or not name:
-         return jsonify({"message": "Name, and israel_id number are required"}), 400
-    
+        return jsonify({"message": "Name, and israel_id number are required"}), 400
     if Customers.query.filter_by(israel_id=israel_id).first():
         # A customer with the same Israel ID as a deleted customer (active = false) cannot be added.
         return jsonify({"message": "A customer with this israel_id already exists"}), 400
